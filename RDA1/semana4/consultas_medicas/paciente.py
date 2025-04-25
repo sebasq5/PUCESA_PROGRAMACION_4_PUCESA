@@ -1,14 +1,17 @@
 class Consulta:
     def __init__(self, fecha, diagnostico, tratamiento):
+        # Constructor que inicializa los detalles de la consulta
         self.fecha = fecha
         self.diagnostico = diagnostico
         self.tratamiento = tratamiento
 
     def mostrar_detalle(self):
+        # Método para mostrar los detalles de la consulta
         print(f"  Fecha: {self.fecha} | Diagnóstico: {self.diagnostico} | Tratamiento: {self.tratamiento}")
 
 class Paciente:
     def __init__(self, nombre, cedula, edad, tipo_sangre):
+        # Muestra la información básica del paciente
         self.nombre = nombre
         self.cedula = cedula
         self.edad = edad
@@ -16,10 +19,12 @@ class Paciente:
         self.consultas = []
 
     def agregar_consulta(self, fecha, diagnostico, tratamiento):
+        # Método para agregar una consulta al historial del paciente
         consulta = Consulta(fecha, diagnostico, tratamiento)
         self.consultas.append(consulta)
 
     def mostrar_info(self):
+        # mostrar informacion del paciente
         print(f"\nNombre: {self.nombre}")
         print(f"Cédula: {self.cedula}")
         print(f"Edad: {self.edad}")
