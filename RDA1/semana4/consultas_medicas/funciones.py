@@ -1,7 +1,4 @@
-# funciones.py
-
-from paciente import Paciente
-from paciente import Consulta  # Asegúrate de importar la clase Consulta
+from paciente import Paciente, Consulta 
 
 lista_pacientes = []
 
@@ -23,75 +20,77 @@ def elegir_tipo_sangre():
 
 def pedir_cedula():
     """
-    Esta función muestra las opciones de tipos de sangre y solicita al usuario que elija uno.
-    Elige un tipo de sangre de una lista predefinida y lo devuelve como resultado.
+    Solicita una cédula de 10 dígitos numéricos al usuario y la devuelve.
     """
     while True:
         ced = input("Ingrese la cédula del paciente (10 números): ")
-
-        # Verificamos que la cédula tenga exactamente 10 caracteres
-        if len(ced) == 10:
-            return ced  # Si tiene 10 caracteres, devolvemos la cédula
+        if len(ced) == 10 and all(c in "0123456789" for c in ced):
+            return ced
         else:
-            print("La cédula debe tener exactamente 10 dígitos.")
+            print("La cédula debe tener exactamente 10 dígitos numéricos.")
 
-
-
+def pedir_edad():
+    """
+    Solicita una edad numérica válida entre 1 y 129.
+    """
+    while True:
+        entrada = input("Edad: ")
+        try:
+            edad = int(entrada)
+            if 0 < edad < 130:
+                return edad
+            else:
+                print("Edad fuera de rango (1 a 129).")
+        except ValueError:
+            print("Entrada inválida. Escriba solo números.")
 
 def pedir_fecha():
     """
-    Esta función solicita al usuario una fecha en formato año, mes, y día (con validaciones).
-    Asegura que el año esté entre 2000 y 2025, el mes entre 1 y 12, y el día entre 1 y 31.
-    Devuelve la fecha en formato 'YYYY-MM-DD'.
+    Solicita una fecha válida (año entre 2000 y 2025) sin usar datetime.
+    Verifica que el día coincida con el mes y si el año es bisiesto.
+    Devuelve una cadena en formato 'YYYY-MM-DD'.
     """
+    def dias_del_mes(mes, anio):
+        if mes in [1, 3, 5, 7, 8, 10, 12]:
+            return 31
+        elif mes in [4, 6, 9, 11]:
+            return 30
+        elif mes == 2:
+            if (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0):
+                return 29
+            return 28
+        return 0
+
     while True:
         try:
             anio = int(input("Ingrese el año: "))
-            if not (2000 <= anio <= 2025):
-                print("Año no valido, ingresa un año entre 2000 y 2025.")
+            if anio < 2000 or anio > 2025:
+                print("Año fuera de rango (2000 a 2025).")
                 continue
-            break
-        except ValueError:
-            print("Por favor, ingresa un número válido para el año.")
-
-    while True:
-        try:
             mes = int(input("Ingrese el mes: "))
-            if not (1 <= mes <= 12):
-                print("Seleccion un mes valido (1-12).")
+            if mes < 1 or mes > 12:
+                print("Mes inválido (1 a 12).")
                 continue
-            break
-        except ValueError:
-            print("Por favor, ingresa un número válido para el mes.")
-
-    while True:
-        try:
-            dia = int(input("Ingrese un dia: "))
-            if not (1 <= dia <= 31):
-                print("Día fuera de rango (1-31).")
+            dia = int(input("Ingrese el día: "))
+            max_dias = dias_del_mes(mes, anio)
+            if dia < 1 or dia > max_dias:
+                print(f"Día inválido para el mes seleccionado (1 a {max_dias}).")
                 continue
-            break
+            return f"{anio:04d}-{mes:02d}-{dia:02d}"
         except ValueError:
-            print("Por favor, ingresa un número válido para el día.")
-
-    return f"{anio:04d}-{mes:02d}-{dia:02d}"
-
+            print("Entrada inválida. Debe ingresar números enteros.")
 
 def registrar_paciente():
     """
-    Esta función solicita los datos de un nuevo paciente (nombre, cédula, edad, tipo de sangre) y los registra.
-    Si la cédula ya existe, muestra un mensaje de error; si no, guarda al paciente en la lista de pacientes.
+    Registra un nuevo paciente solicitando sus datos con validaciones.
     """
     print("\nNuevo paciente")
     ced = pedir_cedula()
-
     if buscar_paciente_por_cedula(ced):
-        
         print("Ya hay un paciente con esa cédula.")
         return
-
     nom = input("Nombre: ")
-    edad = input("Edad: ")
+    edad = pedir_edad()
     sangre = elegir_tipo_sangre()
     nuevo = Paciente(nom, ced, edad, sangre)
     lista_pacientes.append(nuevo)
@@ -99,10 +98,9 @@ def registrar_paciente():
 
 def buscar_paciente_por_cedula(ced):
     """
-        Esta función busca un paciente en la lista por su cédula.
-        Si encuentra el paciente, lo devuelve. Si no, devuelve None.
+    Busca un paciente en la lista por su cédula.
+    Devuelve el objeto paciente si lo encuentra, o None.
     """
-    
     for p in lista_pacientes:
         if p.cedula == ced:
             return p
@@ -110,9 +108,7 @@ def buscar_paciente_por_cedula(ced):
 
 def registrar_consulta():
     """
-    Esta función permite registrar una consulta médica para un paciente ya registrado.
-    Solicita la cédula del paciente, la fecha de la consulta, el diagnóstico y el tratamiento.
-    Si el paciente no está registrado, muestra un mensaje de error.
+    Registra una consulta médica para un paciente existente.
     """
     print("\nNueva consulta")
     ced = pedir_cedula()
@@ -126,7 +122,6 @@ def registrar_consulta():
     trat = input("Tratamiento: ")
 
     try:
-        consulta = Consulta(fecha, diag, trat)
         paciente.agregar_consulta(fecha, diag, trat)
         print("Consulta registrada correctamente.")
     except Exception as e:
@@ -134,9 +129,7 @@ def registrar_consulta():
 
 def mostrar_paciente():
     """
-    Esta función muestra los datos completos de un paciente, incluyendo su historial de consultas.
-    Solicita la cédula del paciente y si lo encuentra, muestra su información.
-    Si no se encuentra, muestra un mensaje de error.
+    Muestra la información completa de un paciente según su cédula.
     """
     print("\nVer un paciente")
     ced = pedir_cedula()
@@ -148,8 +141,7 @@ def mostrar_paciente():
 
 def mostrar_todos_los_pacientes():
     """
-    Esta función muestra todos los pacientes registrados.
-    Si no hay pacientes registrados, muestra un mensaje de error.
+    Muestra todos los pacientes registrados con su información.
     """
     print("\nTodos los pacientes")
     if not lista_pacientes:
